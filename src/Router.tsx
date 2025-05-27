@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, Outlet } from "react-router";
+import { Navigate, Route, Routes } from "react-router";
 import Layout from "./components/Layout";
 import Sidebar from "./components/Layout/SideBar";
 import { ROUTERS } from "./constant";
@@ -19,14 +19,12 @@ const LoadingFallback = () => (
   </div>
 );
 
-const PrivateRoute = () => {
+const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useUserStore();
   return isAuthenticated ? (
     <div className="flex">
       <Sidebar />
-      <div className="flex-1 ml-64">
-        <Outlet />
-      </div>
+      <div className="flex-1 ml-64">{children}</div>
     </div>
   ) : (
     <Navigate to={ROUTERS.LOGIN} />
@@ -47,8 +45,22 @@ export default function Router() {
     <Suspense fallback={<LoadingFallback />}>
       <Routes>
         <Route element={<Layout />}>
-          <Route path={ROUTERS.DEFAULT} element={<Login />} />
-          <Route path={ROUTERS.HOME} element={<Login />} />
+          <Route
+            path={ROUTERS.DEFAULT}
+            element={
+              <AuthRoute>
+                <Login />
+              </AuthRoute>
+            }
+          />
+          <Route
+            path={ROUTERS.HOME}
+            element={
+              <AuthRoute>
+                <Login />
+              </AuthRoute>
+            }
+          />
           <Route
             path={ROUTERS.HOME}
             element={
@@ -66,24 +78,27 @@ export default function Router() {
             }
           />
           {/* Private routes */}
-          <Route element={<PrivateRoute />}>
-            <Route path={ROUTERS.DASHBOARD} element={<HistoryDocument />} />
+          {[
+            { path: ROUTERS.DASHBOARD, element: <HistoryDocument /> },
+            { path: ROUTERS.HISTORY_DOCUMENTS, element: <HistoryDocument /> },
+            {
+              path: ROUTERS.CREATE_HISTORY_DOCUMENT,
+              element: <CreateHistoryDocument />,
+            },
+            {
+              path: ROUTERS.UPDATE_HISTORY_DOCUMENT,
+              element: <UpdateHistoryDocument />,
+            },
+            { path: ROUTERS.QUIZ, element: <QuizManagement /> },
+            { path: ROUTERS.QUIZ_DETAIL, element: <QuizDetail /> },
+            { path: ROUTERS.NOTIFICATION, element: <Notification /> },
+          ].map(({ path, element }) => (
             <Route
-              path={ROUTERS.HISTORY_DOCUMENTS}
-              element={<HistoryDocument />}
+              key={path}
+              path={path}
+              element={<PrivateRoute>{element}</PrivateRoute>}
             />
-            <Route
-              path={ROUTERS.CREATE_HISTORY_DOCUMENT}
-              element={<CreateHistoryDocument />}
-            />
-            <Route
-              path={ROUTERS.UPDATE_HISTORY_DOCUMENT}
-              element={<UpdateHistoryDocument />}
-            />
-            <Route path={ROUTERS.QUIZ} element={<QuizManagement />} />
-            <Route path={ROUTERS.QUIZ_DETAIL} element={<QuizDetail />} />
-            <Route path={ROUTERS.NOTIFICATION} element={<Notification />} />
-          </Route>
+          ))}
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
