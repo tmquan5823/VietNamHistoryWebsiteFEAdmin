@@ -12,6 +12,8 @@ import UpdateHistoryDocument from "./pages/UpdateHistoryDocument";
 import QuizManagement from "./pages/QuizManagement";
 import QuizDetail from "./pages/QuizDetail";
 import Notification from "./pages/Notification";
+import ForumManagement from "./pages/ForumManagement";
+import ForumPostDetail from "./pages/ForumPostDetail";
 
 const LoadingFallback = () => (
   <div className="flex h-screen w-full items-center justify-center">
@@ -47,8 +49,22 @@ export default function Router() {
     <Suspense fallback={<LoadingFallback />}>
       <Routes>
         <Route element={<Layout />}>
-          <Route path={ROUTERS.DEFAULT} element={<Login />} />
-          <Route path={ROUTERS.HOME} element={<Login />} />
+          <Route
+            path={ROUTERS.DEFAULT}
+            element={
+              <AuthRoute>
+                <Login />
+              </AuthRoute>
+            }
+          />
+          <Route
+            path={ROUTERS.HOME}
+            element={
+              <AuthRoute>
+                <Login />
+              </AuthRoute>
+            }
+          />
           <Route
             path={ROUTERS.HOME}
             element={
@@ -83,6 +99,11 @@ export default function Router() {
             <Route path={ROUTERS.QUIZ} element={<QuizManagement />} />
             <Route path={ROUTERS.QUIZ_DETAIL} element={<QuizDetail />} />
             <Route path={ROUTERS.NOTIFICATION} element={<Notification />} />
+            <Route path={ROUTERS.FORUM} element={<ForumManagement />} />
+            <Route
+              path={ROUTERS.FORUM_POST_DETAIL}
+              element={<ForumPostDetail />}
+            />
           </Route>
         </Route>
         <Route path="*" element={<NotFound />} />

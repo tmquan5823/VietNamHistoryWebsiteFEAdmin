@@ -12,6 +12,9 @@ export const enum ROUTERS {
   UPDATE_HISTORY_DOCUMENT = "/update-history-document/:id",
 
   FORUM = "/forum",
+  FORUM_POST_DETAIL = "/forum/:id",
+  FORUM_POST_REVIEW = "/forum/review",
+
   HISTORY_DOCUMENT_DETAIL = "/history-document/:id",
 
   QUIZ = "/quiz",
@@ -29,38 +32,6 @@ export const enum STORAGE_VAR {
   ACCESS_TOKEN = "access_token",
 }
 
-export const enum ROLE {
-  ADMIN = "admin",
-}
-
-export const enum ROLE_ID {
-  SUPER_USER = 5,
-}
-
-export const enum CSV_ORDER_ROW {
-  ShipVisitID = 0,
-  GroupName = 1,
-  HEADER = 2,
-  ShipVisitIDTxt = `訪船ID
-未入力の場合、新規訪船として扱われます。
-更新・削除の場合は、テンプレートをダウンロードして下さい`,
-  GroupNameTxt = `*訪船団体名`,
-}
-
-export const enum SCREEN_ID {
-  ADMIN_DASHBOARD = 1,
-  A_02_00 = 2,
-  A_05_00 = 5,
-  A_07_00 = 7,
-  A_06_00 = 9,
-  A_08_00 = 10,
-}
-
-export const MAX_FILE_SIZE = 1024 * 1024; // 1MB
-export const ALLOWED_TYPES = ["text/csv"];
-
-export const MAX_LENGTH_INPUT = 255;
-
 export const regexPassword =
   /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
 
@@ -75,3 +46,14 @@ export const statusMap: Record<string, string> = {
   pending: "Chờ duyệt",
   inactive: "Vô hiệu hóa",
 };
+
+export const statusMapForum: Record<string, string> = {
+  approved: "Đã duyệt",
+  pending: "Chờ duyệt",
+  rejected: "Đã từ chối",
+  inactive: "Đã tắt",
+  local: "Bản nháp",
+  needs_review: "Cần kiểm duyệt",
+};
+
+export const POSTS_PER_PAGE = 10;
