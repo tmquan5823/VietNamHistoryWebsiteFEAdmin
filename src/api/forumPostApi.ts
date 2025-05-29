@@ -1,6 +1,6 @@
 import axiosClient from "./axiosClient";
 import { ResponseData } from "@/utils/type";
-import { ForumPost, ForumPostResponse } from "@/dataHelper/forumPost.dataHelper";
+import { ForumPost, ForumPostResponse, ForumPostReview } from "@/dataHelper/forumPost.dataHelper";
 
 export const forumPostApi = {
     getForumPosts: (params: any): Promise<ResponseData<ForumPostResponse>> =>
@@ -15,5 +15,7 @@ export const forumPostApi = {
       axiosClient.put(`/forum-posts/${id}/inactive`, { reject_reason }),
     activeForumPost: (id: number): Promise<ResponseData<ForumPost>> =>
       axiosClient.put(`/forum-posts/${id}/active`),
+    getForumPostReview: (id: number): Promise<ResponseData<ForumPostReview>> =>
+      axiosClient.get(`/forum-posts/${id}/review`),
   };
   

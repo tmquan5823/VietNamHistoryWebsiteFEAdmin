@@ -10,14 +10,24 @@ import {
   Bell,
 } from "lucide-react";
 import { useUserStore } from "@/store/useUserStore";
-import { useSelector } from "react-redux";
-import { selectUnreadCount } from "@/store/notificationSlice";
+import { useSelector, useDispatch } from "react-redux";
+import { selectUnreadCount, setNotifications } from "@/store/notificationSlice";
+import { useNotification } from "@/hook/useNotification";
 
 const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useUserStore();
+  const { logout, user } = useUserStore();
   const unreadCount = useSelector(selectUnreadCount);
+  const dispatch = useDispatch();
+
+  // Lắng nghe notification realtime và cập nhật redux
+  const { notifications } = useNotification(user?.id, 1, 10);
+  React.useEffect(() => {
+    if (notifications) {
+      dispatch(setNotifications(notifications));
+    }
+  }, [notifications, dispatch]);
 
   const isActiveRoute = (route: string) => location.pathname === route;
 

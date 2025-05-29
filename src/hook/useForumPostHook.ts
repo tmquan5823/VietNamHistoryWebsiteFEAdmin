@@ -40,6 +40,7 @@ const approveForumPostQuery = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["forumPost"] });
+      queryClient.invalidateQueries({ queryKey: ["forumPostReview"] });
       toast.success("Duyệt bài viết thành công");
     },
     onError: () => {
@@ -57,6 +58,7 @@ const rejectForumPostQuery = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["forumPost"] });
+      queryClient.invalidateQueries({ queryKey: ["forumPostReview"] });
       toast.success("Từ chối bài viết thành công");
     },
     onError: () => {
@@ -99,6 +101,16 @@ const activeForumPostQuery = () => {
   });
 };
 
+const getForumPostReviewQuery = (id: number) => {
+  return useQuery({
+    queryKey: ["forumPostReview", id],
+    queryFn: async () => {
+      const response = await forumPostApi.getForumPostReview(id);
+      return response;
+    },
+  });
+};
+
 
 export const useForumPostHook = {
   forumPostQuery,
@@ -107,5 +119,6 @@ export const useForumPostHook = {
   rejectForumPostQuery, 
   inactiveForumPostQuery,
   activeForumPostQuery,
+  getForumPostReviewQuery,
 };
 

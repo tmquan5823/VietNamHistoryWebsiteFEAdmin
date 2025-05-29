@@ -39,3 +39,15 @@ export enum ForumPostStatus {
     NEEDS_REVIEW = 'needs_review',
 }
 
+export interface ForumPostVersion {
+    id: number;
+    title: string;
+    content: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface ForumPostReview {
+    forumPost: ForumPost;
+    version: ForumPostVersion;
+}

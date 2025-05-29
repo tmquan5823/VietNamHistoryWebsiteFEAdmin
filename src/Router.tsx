@@ -14,6 +14,7 @@ import QuizDetail from "./pages/QuizDetail";
 import Notification from "./pages/Notification";
 import ForumManagement from "./pages/ForumManagement";
 import ForumPostDetail from "./pages/ForumPostDetail";
+import ForumPostReview from "./pages/ForumPostReview";
 
 const LoadingFallback = () => (
   <div className="flex h-screen w-full items-center justify-center">
@@ -103,6 +104,10 @@ export default function Router() {
             <Route
               path={ROUTERS.FORUM_POST_DETAIL}
               element={<ForumPostDetail />}
+            />
+            <Route
+              path={ROUTERS.FORUM_POST_REVIEW}
+              element={<ForumPostReview />}
             />
           </Route>
         </Route>

@@ -13,7 +13,7 @@ export const enum ROUTERS {
 
   FORUM = "/forum",
   FORUM_POST_DETAIL = "/forum/:id",
-  FORUM_POST_REVIEW = "/forum/review",
+  FORUM_POST_REVIEW = "/forum/review/:id",
 
   HISTORY_DOCUMENT_DETAIL = "/history-document/:id",
 

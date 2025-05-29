@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { statusMapForum } from "@/constant";
 import { CiTimer } from "react-icons/ci";
 import { useForumPostHook } from "@/hook/useForumPostHook";
 import { PageContainer } from "@/components/common/PageContainer";
 import BackButton from "@/components/ui/backButton";
+import InputModal from "@/components/common/InputModal";
 
 const ForumPostDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -12,7 +13,32 @@ const ForumPostDetail: React.FC = () => {
   const { data, isLoading, error } = useForumPostHook.forumPostByIdQuery(
     Number(id)
   );
-  console.log(data);
+  // Mutations
+  const { mutate: approveForumPost } = useForumPostHook.approveForumPostQuery();
+  const { mutate: rejectForumPost } = useForumPostHook.rejectForumPostQuery();
+  const { mutate: inactiveForumPost } =
+    useForumPostHook.inactiveForumPostQuery();
+  const { mutate: activeForumPost } = useForumPostHook.activeForumPostQuery();
+
+  // Modal state
+  const [modal, setModal] = useState<{
+    open: boolean;
+    type: "reject" | "inactive" | null;
+  }>({ open: false, type: null });
+
+  // Modal handlers
+  const handleInputModalConfirm = (inputReason: string) => {
+    if (!data?.data) return;
+    if (modal.type === "reject") {
+      rejectForumPost({ id: data.data.id, reject_reason: inputReason });
+    } else if (modal.type === "inactive") {
+      inactiveForumPost({ id: data.data.id, reject_reason: inputReason });
+    }
+    setModal({ open: false, type: null });
+  };
+  const handleModalCancel = () => {
+    setModal({ open: false, type: null });
+  };
 
   if (isLoading) return <div>Đang tải...</div>;
   if (error)
@@ -58,14 +84,60 @@ const ForumPostDetail: React.FC = () => {
               >
                 {statusMapForum[post.status] || post.status}
               </span>
+              {/* Nút chức năng theo status */}
               {post.status === "pending" && (
-                <button className="px-3 py-1 rounded bg-neutral-500 text-white text-xs font-semibold hover:bg-neutral-600 transition">
-                  {"Hủy đăng tải"}
+                <>
+                  <button
+                    className="px-3 py-1 rounded bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition"
+                    onClick={() => approveForumPost(post.id)}
+                  >
+                    Phê duyệt
+                  </button>
+                  <button
+                    className="px-3 py-1 rounded bg-red-600 text-white text-xs font-semibold hover:bg-red-700 transition"
+                    onClick={() => setModal({ open: true, type: "reject" })}
+                  >
+                    Từ chối
+                  </button>
+                </>
+              )}
+              {post.status === "needs_review" && (
+                <>
+                  <button
+                    className="px-3 py-1 rounded bg-orange-500 text-white text-xs font-semibold hover:bg-orange-600 transition"
+                    // onClick={() => ...} // Đối chiếu, nếu có
+                    disabled
+                  >
+                    Đối chiếu
+                  </button>
+                  <button
+                    className="px-3 py-1 rounded bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition"
+                    onClick={() => approveForumPost(post.id)}
+                  >
+                    Phê duyệt
+                  </button>
+                  <button
+                    className="px-3 py-1 rounded bg-red-600 text-white text-xs font-semibold hover:bg-red-700 transition"
+                    onClick={() => setModal({ open: true, type: "reject" })}
+                  >
+                    Từ chối
+                  </button>
+                </>
+              )}
+              {post.status === "approved" && (
+                <button
+                  className="px-3 py-1 rounded bg-gray-500 text-white text-xs font-semibold hover:bg-gray-600 transition"
+                  onClick={() => setModal({ open: true, type: "inactive" })}
+                >
+                  Vô hiệu hóa
                 </button>
               )}
-              {post.status === "local" && (
-                <button className="px-3 py-1 rounded bg-green-600 text-white text-xs font-semibold hover:bg-green-700 transition">
-                  {"Đăng tải"}
+              {post.status === "inactive" && (
+                <button
+                  className="px-3 py-1 rounded bg-green-600 text-white text-xs font-semibold hover:bg-green-700 transition"
+                  onClick={() => activeForumPost(post.id)}
+                >
+                  Kích hoạt lại
                 </button>
               )}
             </div>
@@ -111,6 +183,27 @@ const ForumPostDetail: React.FC = () => {
         </div>
         {/* Nếu có phần bình luận, render ở đây */}
       </div>
+      {/* Modal nhập lý do */}
+      <InputModal
+        open={modal.open}
+        title={
+          modal.type === "reject" ? "Từ chối bài viết" : "Vô hiệu hóa bài viết"
+        }
+        description={
+          modal.type === "reject"
+            ? "Nhập lý do từ chối"
+            : "Nhập lý do vô hiệu hóa"
+        }
+        onCancel={handleModalCancel}
+        onConfirm={handleInputModalConfirm}
+        confirmText="Xác nhận"
+        cancelText="Hủy"
+        placeholder={
+          modal.type === "reject"
+            ? "Nhập lý do từ chối..."
+            : "Nhập lý do vô hiệu hóa..."
+        }
+      />
     </PageContainer>
   );
 };

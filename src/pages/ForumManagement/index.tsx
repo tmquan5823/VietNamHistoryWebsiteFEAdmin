@@ -108,6 +108,10 @@ const ForumManagement: React.FC = () => {
   const { mutate: inactiveForumPost } =
     useForumPostHook.inactiveForumPostQuery();
 
+  const handleCompare = (id: number) => {
+    navigate(ROUTERS.FORUM_POST_REVIEW.replace(":id", id.toString()));
+  };
+
   return (
     <PageContainer title="Quản lý bài viết">
       <div className="bg-white p-6 rounded shadow w-full">
@@ -144,6 +148,7 @@ const ForumManagement: React.FC = () => {
                     onReject={handleReject}
                     onInactive={handleInactive}
                     onActive={handleActive}
+                    onCompare={handleCompare}
                   />
                 ))
               ) : (
