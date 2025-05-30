@@ -115,7 +115,6 @@ const ForumManagement: React.FC = () => {
   return (
     <PageContainer title="Quản lý bài viết">
       <div className="bg-white p-6 rounded shadow w-full">
-        <h2 className="text-xl font-bold mb-4">Danh sách bài viết</h2>
         {/* Bộ lọc */}
         <Filter
           search={search}
