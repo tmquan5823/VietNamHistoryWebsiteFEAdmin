@@ -9,6 +9,7 @@ export interface User {
   birthday: string | null;
   isBanned: boolean;
   createdAt: string | null;
+  
 }
 
 export interface UserResponse {

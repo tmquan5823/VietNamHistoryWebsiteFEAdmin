@@ -63,10 +63,25 @@ const unBanUserQuery = () => {
   });
 };  
 
+const createUserQuery = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: FormData) => userApi.createUser(data).then((res) => res.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      toast.success("Tạo người dùng thành công");
+    },
+    onError: (error: any) => {
+      toast.error(error.response.data.message);
+    },
+  });
+};
+
 export const useUserHook = {
   userQuery,
   userByIdQuery,
   updateUserQuery,
   banUserQuery,
   unBanUserQuery,
+  createUserQuery,
 };

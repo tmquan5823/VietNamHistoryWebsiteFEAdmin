@@ -9,6 +9,7 @@ import UserTable from "./component/UserTable";
 import { toast } from "sonner";
 import Filter from "./component/Filter";
 import { POSTS_PER_PAGE } from "@/constant";
+import CreateForm from "./component/CreateForm";
 
 const UsersManagement: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -29,6 +30,7 @@ const UsersManagement: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
   const [openDetail, setOpenDetail] = useState(false);
   const currentUser = useUserStore((state) => state.user);
+  const [openCreate, setOpenCreate] = useState(false);
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -51,7 +53,7 @@ const UsersManagement: React.FC = () => {
         setSelectedUser(user as UserType);
       },
       onError: () => {
-        toast.error("Ban user thất bại");
+        toast.error("Khóa tài khoản thất bại");
       },
     });
   };
@@ -63,16 +65,18 @@ const UsersManagement: React.FC = () => {
         setSelectedUser(user as UserType);
       },
       onError: () => {
-        toast.error("Mở khóa user thất bại");
+        toast.error("Mở khóa tài khoản thất bại");
       },
     });
   };
 
-  const { mutate: updateUser } = useUserHook.updateUserQuery();
+  const { mutate: updateUser, isPending: isUpdating } =
+    useUserHook.updateUserQuery();
   const handleUpdateUser = (
     id: number,
     data: UserType,
-    onSuccess?: () => void
+    onSuccess?: () => void,
+    onError?: () => void
   ) => {
     const formData = new FormData();
     data.avatar && formData.append("avatar", data.avatar);
@@ -88,8 +92,47 @@ const UsersManagement: React.FC = () => {
           setOpenDetail(true);
           if (onSuccess) onSuccess();
         },
+        onError: () => {
+          toast.error("Cập nhật thất bại");
+          if (onError) onError();
+        },
       }
     );
+  };
+
+  const { mutate: createUser, isPending: isCreating } =
+    useUserHook.createUserQuery();
+  const handleCreateUser = (
+    data: {
+      fullname: string;
+      email: string;
+      password: string;
+      gender: string;
+      birthday: string;
+      role: string;
+      avatar?: File | null;
+    },
+    callbacks?: { onSuccess?: () => void; onError?: () => void }
+  ) => {
+    const formData = new FormData();
+    formData.append("fullname", data.fullname);
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+    formData.append("gender", data.gender);
+    formData.append("birthday", data.birthday || "");
+    formData.append("role", data.role);
+    if (data.avatar) {
+      formData.append("avatar", data.avatar);
+    }
+    createUser(formData, {
+      onSuccess: () => {
+        setSelectedUser(null);
+        callbacks?.onSuccess && callbacks.onSuccess();
+      },
+      onError: () => {
+        callbacks?.onError && callbacks.onError();
+      },
+    });
   };
 
   if (isLoading) return <div>Đang tải...</div>;
@@ -97,6 +140,30 @@ const UsersManagement: React.FC = () => {
   return (
     <PageContainer title="Quản lý người dùng">
       <Filter value={filter} onChange={setFilter} />
+      <div className="flex justify-end mb-4">
+        <button
+          className="px-4 py-2 rounded bg-[#5D4037] text-[#FDDAA7] font-bold hover:bg-[#7B5E3B] transition"
+          onClick={() => setOpenCreate(true)}
+        >
+          Tạo người dùng
+        </button>
+      </div>
+      {openCreate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg p-6 min-w-[350px] max-w-[90vw]">
+            <CreateForm
+              onCancel={() => setOpenCreate(false)}
+              onSubmit={(data) => {
+                handleCreateUser(data, {
+                  onSuccess: () => setOpenCreate(false),
+                  onError: () => toast.error("Tạo người dùng thất bại"),
+                });
+              }}
+              isLoading={isCreating}
+            />
+          </div>
+        </div>
+      )}
       <div className="overflow-x-auto h-full">
         <UserTable
           users={data?.users || []}
@@ -120,6 +187,7 @@ const UsersManagement: React.FC = () => {
         onBanUser={handleBanUser}
         onUnBanUser={handleUnBanUser}
         onUpdateUser={handleUpdateUser}
+        isUpdating={isUpdating}
       />
     </PageContainer>
   );

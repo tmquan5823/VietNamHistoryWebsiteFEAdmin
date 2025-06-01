@@ -1,6 +1,6 @@
 import React from "react";
-import { User } from "@/dataHelper/user.dataHelper";
-import Select from "react-select";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormField,
@@ -10,19 +10,32 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { updateUserSchema } from "@/utils/schema";
-import { z } from "zod";
+import { createUserSchema } from "@/utils/schema";
+import Select from "react-select";
 
-type UpdateUserFormType = z.infer<typeof updateUserSchema>;
-
-interface UpdateFormProps {
-  user: User;
+interface CreateFormProps {
   onCancel: () => void;
-  onSubmit: (data: UpdateUserFormType) => void;
+  onSubmit: (data: {
+    fullname: string;
+    email: string;
+    password: string;
+    gender: string;
+    birthday: string;
+    role: string;
+    avatar?: File | null;
+  }) => void;
   isLoading?: boolean;
 }
+
+type CreateUserFormType = {
+  fullname: string;
+  email: string;
+  password: string;
+  gender: string;
+  birthday: string;
+  role: string;
+  avatar?: File | null;
+};
 
 const genderOptions = [
   { value: "male", label: "Nam" },
@@ -34,58 +47,38 @@ const roleOptions = [
   { value: "user", label: "Người dùng" },
 ];
 
-const UpdateForm: React.FC<UpdateFormProps> = ({
-  user,
+const CreateForm: React.FC<CreateFormProps> = ({
   onCancel,
   onSubmit,
   isLoading,
 }) => {
-  const form = useForm<UpdateUserFormType>({
-    resolver: zodResolver(updateUserSchema),
+  const form = useForm<CreateUserFormType>({
+    resolver: zodResolver(createUserSchema),
     defaultValues: {
-      fullname: user.fullname || "",
-      gender: user.gender || "other",
-      birthday: user.birthday ? user.birthday.slice(0, 10) : "",
-      role: user.role || "user",
-      avatar: undefined,
+      fullname: "",
+      email: "",
+      password: "",
+      gender: "other",
+      birthday: "",
+      role: "user",
+      avatar: null,
     },
   });
-  const [avatarPreview, setAvatarPreview] = React.useState<string>(
-    user.avatar || ""
-  );
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-
-  React.useEffect(() => {
-    form.reset({
-      fullname: user.fullname || "",
-      gender: user.gender || "other",
-      birthday: user.birthday ? user.birthday.slice(0, 10) : "",
-      role: user.role || "user",
-      avatar: undefined,
-    });
-    setAvatarPreview(user.avatar || "");
-    // eslint-disable-next-line
-  }, [user]);
 
   const handleSelectChange = (
-    name: keyof UpdateUserFormType,
+    name: keyof CreateUserFormType,
     value: string
   ) => {
     form.setValue(name, value);
   };
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       form.setValue("avatar", e.target.files[0]);
-      setAvatarPreview(URL.createObjectURL(e.target.files[0]));
     }
   };
 
-  const handleAvatarClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleSubmit = (values: UpdateUserFormType) => {
+  const handleSubmit = (values: CreateUserFormType) => {
     onSubmit(values);
   };
 
@@ -93,34 +86,8 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="w-full flex flex-col items-center gap-3"
+        className="w-[480px] max-w-full flex flex-col items-center gap-4"
       >
-        <FormField
-          control={form.control}
-          name="avatar"
-          render={() => (
-            <FormItem className="flex flex-col items-center mb-2 w-full">
-              <FormLabel>Ảnh đại diện</FormLabel>
-              <FormControl>
-                <img
-                  src={avatarPreview || "/default-avatar.png"}
-                  alt="avatar"
-                  className="w-24 h-24 rounded-full object-cover border-2 border-yellow-300 cursor-pointer hover:opacity-80"
-                  onClick={handleAvatarClick}
-                />
-              </FormControl>
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                style={{ display: "none" }}
-                onChange={handleAvatarChange}
-                disabled={isLoading}
-              />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         <div className="flex w-full gap-3">
           <FormField
             control={form.control}
@@ -129,7 +96,45 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
               <FormItem className="w-1/2">
                 <FormLabel>Họ tên</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Họ tên" disabled={isLoading} />
+                  <Input placeholder="Họ tên" {...field} disabled={isLoading} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem className="w-1/2">
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Email"
+                    type="email"
+                    {...field}
+                    disabled={isLoading}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="flex w-full gap-3">
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem className="w-1/2">
+                <FormLabel>Mật khẩu</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Mật khẩu"
+                    type="password"
+                    {...field}
+                    disabled={isLoading}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -150,7 +155,6 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
                   options={genderOptions}
                   className="w-full text-left"
                   classNamePrefix="react-select"
-                  isDisabled={isLoading}
                 />
                 <FormMessage />
               </FormItem>
@@ -165,7 +169,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
               <FormItem className="w-1/2">
                 <FormLabel>Ngày sinh</FormLabel>
                 <FormControl>
-                  <Input {...field} type="date" disabled={isLoading} />
+                  <Input type="date" {...field} disabled={isLoading} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -186,26 +190,42 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
                   options={roleOptions}
                   className="w-full text-left"
                   classNamePrefix="react-select"
-                  isDisabled={isLoading}
                 />
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
+        <FormField
+          control={form.control}
+          name="avatar"
+          render={() => (
+            <FormItem className="w-full">
+              <FormLabel>Ảnh đại diện</FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  disabled={isLoading}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <div className="flex gap-2 mt-2">
           <button
             type="submit"
             className="px-4 py-2 rounded bg-[#5D4037] text-[#FDDAA7] font-bold hover:bg-[#7B5E3B] transition"
             disabled={isLoading}
           >
-            {isLoading ? "Đang lưu..." : "Lưu"}
+            {isLoading ? "Đang tạo..." : "Tạo mới"}
           </button>
           <button
             type="button"
             className="px-4 py-2 rounded bg-gray-300 text-[#5D4037] font-bold hover:bg-gray-400 transition"
             onClick={onCancel}
-            disabled={isLoading}
           >
             Hủy
           </button>
@@ -215,4 +235,4 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
   );
 };
 
-export default UpdateForm;
+export default CreateForm;

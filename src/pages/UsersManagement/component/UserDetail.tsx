@@ -8,7 +8,13 @@ interface UserDetailProps {
   onClose: () => void;
   onBanUser: (id: number) => void;
   onUnBanUser: (id: number) => void;
-  onUpdateUser: (id: number, data: any, onSuccess?: () => void) => void;
+  onUpdateUser: (
+    id: number,
+    data: any,
+    onSuccess?: () => void,
+    onError?: () => void
+  ) => void;
+  isUpdating?: boolean;
 }
 
 const UserDetail: React.FC<UserDetailProps> = ({
@@ -18,6 +24,7 @@ const UserDetail: React.FC<UserDetailProps> = ({
   onBanUser,
   onUnBanUser,
   onUpdateUser,
+  isUpdating,
 }) => {
   const [isEdit, setIsEdit] = React.useState(false);
 
@@ -41,19 +48,29 @@ const UserDetail: React.FC<UserDetailProps> = ({
         >
           &times;
         </button>
+        {!isEdit && (
+          <div className="flex justify-center w-full mb-2">
+            <img
+              src={user.avatar}
+              alt="avatar"
+              className="w-28 h-28 rounded-full object-cover border-4 border-[#FDDAA7] shadow"
+            />
+          </div>
+        )}
         <div className="flex flex-col items-center gap-3">
-          <img
-            src={user.avatar}
-            alt="avatar"
-            className="w-28 h-28 rounded-full object-cover border-4 border-[#FDDAA7] shadow mb-2"
-          />
           {isEdit ? (
             <UpdateForm
               user={user}
               onCancel={() => setIsEdit(false)}
               onSubmit={(data) => {
-                onUpdateUser(user.id, data, () => setIsEdit(false));
+                onUpdateUser(
+                  user.id,
+                  data,
+                  () => setIsEdit(false),
+                  () => {}
+                );
               }}
+              isLoading={isUpdating}
             />
           ) : (
             <>
