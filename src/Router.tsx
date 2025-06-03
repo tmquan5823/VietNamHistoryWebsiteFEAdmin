@@ -16,7 +16,7 @@ import ForumManagement from "./pages/ForumManagement";
 import ForumPostDetail from "./pages/ForumPostDetail";
 import ForumPostReview from "./pages/ForumPostReview";
 import UsersManagement from "./pages/UsersManagement";
-
+import Dashboard from "./pages/Dashboard";
 const LoadingFallback = () => (
   <div className="flex h-screen w-full items-center justify-center">
     <div className="size-12 animate-spin rounded-full border-y-2 border-blue-500"></div>
@@ -85,7 +85,7 @@ export default function Router() {
           />
           {/* Private routes */}
           <Route element={<PrivateRoute />}>
-            <Route path={ROUTERS.DASHBOARD} element={<HistoryDocument />} />
+            <Route path={ROUTERS.DASHBOARD} element={<Dashboard />} />
             <Route
               path={ROUTERS.HISTORY_DOCUMENTS}
               element={<HistoryDocument />}
